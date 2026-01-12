@@ -1,27 +1,48 @@
 import requests
 import time
+from datetime import datetime
 
-def get_crypto_price(crypto_id):
-    # Using CoinGecko API (No API key needed for basic use)
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto_id}&vs_currencies=usd"
+# this is the confirguration
+# you can add as many coins as you want here (use their CoinGecko IDs) which can be found from coingeicko.com
+# e.g., 'binancecoin', 'matic-network', 'shiba-inu'
+watchlist = ['bitcoin', 'ethereum', 'solana', 'ripple', 'cardano', 'dogecoin']
+
+ def get_prices(coins):
+    # Join list into a string: "bitcoin,ethereum,solana"
+    ids = ",".join(coins)
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd"
     
     try:
         response = requests.get(url)
-        data = response.json()
-        price = data[crypto_id]['usd']
-        return price
+        # Check if the request was successful
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error: Server returned status {response.status_code}")
+            return None
     except Exception as e:
-        return f"Error: {e}"
+        print(f"Connection Error: {e}")
+        return None
 
-print("--- Live Crypto Ticker (Press Ctrl+C to stop) ---")
+print(f"--- thinking... Tracking {len(watchlist)} Pairs (Press Ctrl+C to stop) ---")
 
 while True:
-    # You can change 'bitcoin' to 'ethereum' or 'solana'
-    btc_price = get_crypto_price('bitcoin')
-    eth_price = get_crypto_price('ethereum')
+    data = get_prices(watchlist)
     
-    print(f"BTC: ${btc_price} | ETH: ${eth_price}")
+    if data:
+        # Get current time for the log
+        now = datetime.now().strftime("%H:%M:%S")
+        print(f"\n[{now}] Market Update:")
+        
+        # Loop through the watchlist to print them in order
+        for coin in watchlist:
+            if coin in data:
+                price = data[coin]['usd']
+                # The {:<12} part just formats the text to align nicely
+                print(f"{coin.capitalize():<12} : ${price:,}") 
+            else:
+                print(f"{coin:<12} : (No Data)")
     
-    # Wait 10 seconds before checking again to avoid being banned by the API
-    time.sleep(10)
+    # Refresh every 15 seconds
+    time.sleep(15)
     
