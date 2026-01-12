@@ -7,7 +7,7 @@ from datetime import datetime
 # e.g., 'binancecoin', 'matic-network', 'shiba-inu'
 watchlist = ['bitcoin', 'ethereum', 'solana', 'ripple', 'cardano', 'dogecoin']
 
- def get_prices(coins):
+def get_prices(coins):
     # Join list into a string: "bitcoin,ethereum,solana"
     ids = ",".join(coins)
     url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd"
